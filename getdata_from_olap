@@ -1,0 +1,66 @@
+import java.io.*;
+import java.net.* ;
+import java.util.Base64;
+
+public class HttpGetAPI {
+
+    public static void main(String args[]) {
+
+
+    String URL_Address  = "http://ip:port/action/action=readElement&database=database&category=DataLevel&outputColumns=ID,Name";
+    String requestBody  = "";
+    String result;
+    StringBuilder sb    = new StringBuilder();
+    String username     = "master";
+    String password     = "zzzz9999";
+    String input        = username + ":" + password;
+
+    String encodingInput = Base64.getEncoder().encodeToString(input.getBytes());
+    System.out.println("pdw: " + encodingInput);//Base64 编码 身份认证信息
+
+try
+
+    {
+        URL url = new URL(URL_Address);
+        HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+        urlcon.setRequestMethod("GET");
+        urlcon.setUseCaches(false);
+        urlcon.setConnectTimeout(30000);
+        urlcon.setReadTimeout(30000);
+        urlcon.setDoInput(true);
+        urlcon.setDoOutput(true);
+        urlcon.setRequestProperty("Content-Type", "text/plain;charset=utf-8");
+        urlcon.setRequestProperty("Authorization", "Basic "+encodingInput);
+        //其他请求头属性
+        OutputStream out = urlcon.getOutputStream();
+        out.write(requestBody.getBytes("UTF-8"));
+        out.flush();
+        out.close();
+        urlcon.connect();
+        //返回结果
+        int responseCode = urlcon.getResponseCode();
+        if (responseCode == 200) {
+            InputStream is = urlcon.getInputStream();
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            String l = null;
+            int i = 0;
+            while ((l = buffer.readLine()) != null) {
+
+                i++;
+//         if( i >= 3 ) {    // start which line..
+                sb.append(l);
+                sb.append("\n");
+//         }
+            }
+        }
+        System.out.println("ResponseCode:" + responseCode);
+        result = sb.toString();
+        System.out.println("result: " + result);
+
+    } catch(
+    Exception e)
+
+    {
+        System.out.println(e.getMessage());
+    }
+    }
