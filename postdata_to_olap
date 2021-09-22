@@ -1,0 +1,98 @@
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Base64;
+import java.io.*;
+import java.net.* ;
+import java.util.Base64;
+
+public class HttpPostAPI {
+    public static void main(String args[]) {
+
+
+        String URL_Address  = "http://localhost:8084/action/action=writeElement&database=demo_14lts";
+        String requestBody  = "";
+        String result;
+        StringBuilder sb    = new StringBuilder();
+        String username     = "master";
+        String password     = "xxx";
+        String input        = username + ":" + password;
+
+        String encodingInput = Base64.getEncoder().encodeToString(input.getBytes());
+        System.out.println("pdw: " + encodingInput);//Base64 编码 身份认证信息
+
+        // 生成创建元素的Body
+
+        StringBuffer tempBodyBuffer = new StringBuffer();
+        tempBodyBuffer.append("Category").append( "\t");
+        tempBodyBuffer.append("ID_Attribute").append( "\t");
+        tempBodyBuffer.append("ID").append( "\t");
+        tempBodyBuffer.append("Type").append( "\t");
+        tempBodyBuffer.append("ParentID").append( "\t");
+        tempBodyBuffer.append("Name").append( "\t").append( "\n");
+
+        tempBodyBuffer.append("Partner").append( "\t");
+        tempBodyBuffer.append("name").append( "\t");
+        tempBodyBuffer.append("2406070").append( "\t");
+        tempBodyBuffer.append("Partner").append( "\t");
+        tempBodyBuffer.append(" [DELETE]").append( "\t");
+        tempBodyBuffer.append("Test999999999").append( "\t").append( "\n");
+        requestBody = tempBodyBuffer.toString();
+        System.out.println(requestBody);
+        //end
+
+        try
+
+        {
+            URL url = new URL(URL_Address);
+            HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+            urlcon.setRequestMethod("POST");
+            urlcon.setUseCaches(false);
+            urlcon.setConnectTimeout(30000);
+            urlcon.setReadTimeout(30000);
+            urlcon.setDoInput(true);
+            urlcon.setDoOutput(true);
+            urlcon.setRequestProperty("Content-Type", "text/plain;charset=utf-8");
+            urlcon.setRequestProperty("Authorization", "Basic "+encodingInput);
+
+
+            //其他请求头属性
+            OutputStream out = urlcon.getOutputStream();
+//            out.setHeader("content-type","text/html;charset=UTF-8");
+            out.write(requestBody.getBytes("UTF-8"));
+
+            out.flush();
+            out.close();
+            urlcon.connect();
+            //返回结果
+            int responseCode = urlcon.getResponseCode();
+            if (responseCode == 200) {
+                InputStream is = urlcon.getInputStream();
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                String l = null;
+                int i = 0;
+                while ((l = buffer.readLine()) != null) {
+
+                    i++;
+//         if( i >= 3 ) {
+                    sb.append(l);
+                    sb.append("\n");
+//         }
+                }
+            }
+            System.out.println("ResponseCode:" + responseCode);
+            result = sb.toString();
+            System.out.println("result: " + result);
+
+        } catch(
+                Exception e)
+
+        {
+            System.out.println(e.getMessage());
+        }
+    }
+
+}
